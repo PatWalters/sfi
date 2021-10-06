@@ -6,6 +6,12 @@ from tqdm import tqdm
 from descriptastorus.descriptors.DescriptorGenerator import MakeGenerator
 
 # Read LogD data from ChEMBL, calculate descriptors, and save descriptors to a pickle file
+# Input data looks like this
+# canonical_smiles,molregno,cx_logd
+# Cc1cc(-n2ncc(=O)[nH]c2=O)ccc1C(=O)c1ccccc1Cl,1,2.69
+# Cc1cc(-n2ncc(=O)[nH]c2=O)ccc1C(=O)c1ccc(C#N)cc1,2,1.82
+# Cc1cc(-n2ncc(=O)[nH]c2=O)cc(C)c1C(O)c1ccc(Cl)cc1,3,2.64
+# Cc1ccc(C(=O)c2ccc(-n3ncc(=O)[nH]c3=O)cc2)cc1,4,1.97
 
 class DescriptorCalc:
     def __init__(self):
