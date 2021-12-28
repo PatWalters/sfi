@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 
+import chembl_downloader
+import time
 import sys
 import pandas as pd
 from tqdm import tqdm
+from rdkit.rdBase import BlockLogs
 from descriptastorus.descriptors.DescriptorGenerator import MakeGenerator
 
-# Read LogD data from ChEMBL, calculate descriptors, and save descriptors to a pickle file
-# Input data looks like this
-# canonical_smiles,molregno,cx_logd
-# Cc1cc(-n2ncc(=O)[nH]c2=O)ccc1C(=O)c1ccccc1Cl,1,2.69
-# Cc1cc(-n2ncc(=O)[nH]c2=O)ccc1C(=O)c1ccc(C#N)cc1,2,1.82
-# Cc1cc(-n2ncc(=O)[nH]c2=O)cc(C)c1C(O)c1ccc(Cl)cc1,3,2.64
-# Cc1ccc(C(=O)c2ccc(-n3ncc(=O)[nH]c3=O)cc2)cc1,4,1.97
 
 class DescriptorCalc:
     def __init__(self):
@@ -28,15 +24,27 @@ class DescriptorCalc:
 
     
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("usage: infile.csv outfile.pkl")
-        sys.exit(0)
-        
+    sql = """
+    select canonical_smiles, cs.molregno, cx_logd
+    from compound_structures cs
+    join compound_properties cp on cs.molregno = cp.molregno
+    """
+    if len(sys.argv) != 2:
+        print(f"usage: {sys.argv[0]} outfile.pkl")
+        sys.exit(2)
+
+    outfile_name = sys.argv[1]
+    start = time.time()
     tqdm.pandas()
     dc = DescriptorCalc()
-    df = pd.read_csv(sys.argv[1])
+    df = chembl_downloader.query(sql)
     df.columns = ["smiles","name","logd"]
     df['desc'] = df.smiles.progress_apply(dc.from_smiles)
-    df.to_pickle(sys.argv[2])
+    df.to_pickle(outfile_name)
+    elapsed = time.time() - start
+    rows, cols = df.shape
+    num_desc = len(df.desc[0])
+    print(f"{elapsed:.2f} s to calculate {num_desc} descriptors for {rows} molecules")
+    print(f"Results written to {outfile_name}")
 
 
