@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+import sys
+import logging
 import chembl_downloader
 import time
-import sys
 import pandas as pd
 from tqdm import tqdm
 from rdkit.rdBase import BlockLogs
@@ -16,10 +17,13 @@ class DescriptorCalc:
     def from_smiles(self,smiles):
         # n.b. the first element is true/false if the descriptors were properly computed
         results = self.generator.process(smiles)
+        if results is None:
+            logging.warning("Unable to process smiles %s", smiles)
+            return None
         processed, features = results[0], results[1:]
         if processed is None:
             logging.warning("Unable to process smiles %s", smiles)
-            # if processed is None, the features are are default values for the type
+            return None
         return features
 
     
