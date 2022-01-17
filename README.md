@@ -17,8 +17,10 @@ to predict and plot SFI.
 
 1. The script **dask_descriptors.py** extracts structures and cLogD data 
 for more than 2 million molecules from the ChEMBL database and generates
-   molecular descriptors. Note that running this script will take a while. On my MacBook Pro, this takes about 7hrs.
-   **You have been warned**.
+molecular descriptors. The script uses the chembl-downloader, so it's not 
+necessary to have ChEMBL installed to run these scripts and notebooks. 
+Note that running this script will take a while. On my MacBook Pro, this 
+takes about 7hrs. **You have been warned**.
 <pre>
 dask_descriptors.py logd_descriptors.pkl
 </pre>
