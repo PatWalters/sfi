@@ -15,7 +15,8 @@ to predict and plot SFI.
 
 ### The slow way, if you want to see how the sausage if made
 
-1. The script **dask_descriptors.py** extracts structures and cLogD data from the ChEMBL database and generates
+1. The script **dask_descriptors.py** extracts structures and cLogD data 
+for more than 2 million molecules from the ChEMBL database and generates
    molecular descriptors. Note that running this script will take a while. On my MacBook Pro, this takes about 7hrs.
    **You have been warned**.
 <pre>
