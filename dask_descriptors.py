@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import time
+from pathlib import Path
+from typing import Optional
 
 import chembl_downloader
+import click
 import dask.dataframe as dd
+import pystow
 import useful_rdkit_utils as uru
 from dask.diagnostics import ProgressBar
+from constants import SFI_MODULE, chembl_version_option
 
 
 def df_prop(df_in):
@@ -14,30 +20,29 @@ def df_prop(df_in):
     return df_in.smiles.apply(rdkit_desc.calc_smiles)
 
 
-def get_chembl_logd_data():
+def get_chembl_logd_data(chembl_version: Optional[str] = None):
     sql = """
     select canonical_smiles, cs.molregno, cx_logd
     from compound_structures cs
     join compound_properties cp on cs.molregno = cp.molregno
     """
-    df = chembl_downloader.query(sql)
+    df = chembl_downloader.query(sql, version=chembl_version)
     df.columns = ["smiles", "name", "logd"]
     return df
 
 
-def main():
-    if len(sys.argv) != 2:
-        print(f"usage: {sys.argv[0]} outfile.pkl")
-        sys.exit(2)
+@click.command()
+@chembl_version_option
+@click.option("--num-cores", type=int, default=lambda: os.cpu_count() - 1)
+def main(chembl_version: str, num_cores: int):
+    outfile_name = SFI_MODULE.join(chembl_version, name="logd_descriptors.pkl")
 
-    outfile_name = sys.argv[1]
     start = time.time()
-    print("Reading ChEMBL data")
-    df = get_chembl_logd_data()
+    print(f"Reading ChEMBL {chembl_version} data")
+    df = get_chembl_logd_data(chembl_version=chembl_version)
     print("Done")
 
-    print("Calculating properties")
-    num_cores = 8
+    print(f"Calculating properties with {num_cores} cores")
     ddf = dd.from_pandas(df, npartitions=num_cores)
     with ProgressBar():
         df["desc"] = ddf.map_partitions(df_prop, meta='float').compute(scheduler='processes')

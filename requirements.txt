@@ -10,3 +10,4 @@ tqdm
 requests
 PyTDC
 seaborn
+click

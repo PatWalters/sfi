@@ -6,7 +6,7 @@ from rdkit.Chem import Descriptors
 from logd_predictor import LogDPredictor
 
 class SFIPredictor:
-    def __init__(self,model_file_name="model_logd.txt",bins=[30,200]):
+    def __init__(self,model_file_name,bins=[30,200]):
         self.bins = bins
         self.logd_predictor = LogDPredictor(model_file_name)
 
